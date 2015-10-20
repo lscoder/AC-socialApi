@@ -15,11 +15,13 @@ router.route('/requests')
 router.route('/requested')
   .get(auth.isAuthenticated, friendshipController.listFriendshipsRequested);
 
-router.route('/:friendId')
+router.route('/:id')
   .get(auth.isAuthenticated, friendshipController.getFriendship)
-  .post(auth.isAuthenticated, friendshipController.inviteFriend)
   .put(auth.isAuthenticated, friendshipController.acceptFriend)
   .delete(auth.isAuthenticated, friendshipController.rejectFriend);
+
+router.route('/invite/:friendId')
+  .post(auth.isAuthenticated, friendshipController.inviteFriend)
 
 router.route('/vip/:friendId')
   .post(auth.isAuthenticated, friendshipController.setVip)

@@ -64,16 +64,14 @@ var FriendshipController = function () {
   };
 
   this.getFriendship = function(request, response) {  	
-	  var token = request.token;
-    var friendId = request.params.friendId;
+    var id = request.params.id;
     var errorMsg = 'Get Friendship: ';
 
-    console.log('Getting Friendship with Friends_Id #' + friendId);
+    console.log('Getting Friendship with Id #' + id);
 
-    friendshipDAO.getFriendship(token._id, friendId, success(response), failWithEmptyResponse(errorMsg, response));
+    friendshipDAO.getFriendship(id, success(response), failWithEmptyResponse(errorMsg, response));
   };
-  
-  
+    
   this.inviteFriend = function(request, response) {
 	  var friendId = request.params.friendId;
     var token = request.token;
@@ -85,23 +83,23 @@ var FriendshipController = function () {
   };
 
   this.acceptFriend = function(request, response) {
-    var friendId = request.params.friendId;
+    var id = request.params.id;
     var token = request.token;
     var errorMsg = 'Accept Friend: ';
 
     console.log('Accepting a friend');
 
-    friendshipDAO.acceptFriendship(token._id, friendId, success(response), fail(errorMsg, response));
+    friendshipDAO.acceptFriendship(id, token._id, success(response), fail(errorMsg, response));
   };
 
   this.rejectFriend = function(request, response) {
-    var friendId = request.params.friendId;
+    var id = request.params.id;
     var token = request.token;
     var errorMsg = 'Reject Friend: ';
 
     console.log('Rejecting a friend');
 
-    friendshipDAO.rejectFriendship(token._id, friendId, success(response), fail(errorMsg, response));
+    friendshipDAO.rejectFriendship(id, token._id, success(response), fail(errorMsg, response));
   };
 
   this.setVip = function(request, response) {

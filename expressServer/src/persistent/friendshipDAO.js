@@ -91,9 +91,9 @@ var FriendshipDAO = function(){
 
   /*****       GET/LIST FRIENDSHIPS   ***/
 
-  this.getFriendship = function(userId, friendId, successCB, failCB) {
-    console.log('MongoDB - Get Friendship By User Id and FriendId - find( userId: ' + userId + ', friendId: ' + friendId +')');
-    Friendship.findOne(_defaultQueryFriendshipNonOrdered(userId, friendId), _defaultQueryFunction(successCB, failCB));
+  this.getFriendship = function(id, successCB, failCB) {
+    console.log('MongoDB - Get Friendship By Friendship id - find( id: ' + id +')');
+    Friendship.findById(id, _defaultQueryFunction(successCB, failCB));
   };  
 
   this.listAllFriendships = function(successCB, failCB) {
@@ -166,10 +166,10 @@ var FriendshipDAO = function(){
 
   /****   UPDATE PROPERTIES    ***/
 
-  this.updateFriendshipStatus = function(userId, friendId, status, successCB, failCB){
-    console.log('Mongoose - Schema - Friendship updated - userId: ' + userId + ' - FriendId: ' + friendId + ' - status: ' + status );
+  this.updateFriendshipStatus = function(id, status, successCB, failCB){
+    console.log('Mongoose - Schema - Friendship updated - id: ' + id + ' - status: ' + status );
     
-    Friendship.findOneAndUpdate(_defaultQueryFriendshipNonOrdered(userId, friendId),
+    Friendship.findOneAndUpdate({ _id: id },
                           { $set: { "status": status } },
                           { new: true},
                           _defaultQueryFunction(successCB, failCB));
@@ -230,16 +230,15 @@ var FriendshipDAO = function(){
   /****         FRIENDSHIP STATUS            ***/
 
 
-  this.updateFriendship = function(userId, friendId, status, successCB, failCB){
+  this.updateFriendship = function(id, userId, status, successCB, failCB){
     var self = this;
-    Friendship.findOne(_defaultQueryFriendshipNonOrdered(userId, friendId), function(error, friendship){
-
+    Friendship.findById(id, function(error, friendship){
       if(error) return failCB(error);
 
       if(!friendship) return failCB('Friendship does not exists');
 
       if(friendship.CanUpdateStatus(userId, status)){
-        self.updateFriendshipStatus(userId, friendId, status, successCB, failCB);      
+        self.updateFriendshipStatus(id, status, successCB, failCB);      
       }else{
         return failCB('You cant approve your own request');        
       }
@@ -247,12 +246,12 @@ var FriendshipDAO = function(){
   };
 
 
-  this.acceptFriendship = function(userId, friendId, successCB, failCB){
-    this.updateFriendship(userId, friendId, 1, successCB, failCB);
+  this.acceptFriendship = function(id, userId, successCB, failCB){
+    this.updateFriendship(id, userId, 1, successCB, failCB);
   };
 
-  this.rejectFriendship = function(userId, friendId, successCB, failCB){
-    this.updateFriendship(userId, friendId, 2, successCB, failCB);
+  this.rejectFriendship = function(id, userId, successCB, failCB){
+    this.updateFriendship(id, userId, 2, successCB, failCB);
   };
 
 
@@ -263,7 +262,7 @@ var FriendshipDAO = function(){
 
       if(friendship){
         if(!friendship.blockUserRequested && !friendship.blockUserRequester){ //Not blocked        
-          self.updateFriendshipStatus(userId, friendId, 0, successCB, failCB);
+          self.updateFriendshipStatus(friendship._id, 0, successCB, failCB);
         }else{
           console.log('Mongoose - Schema - Friendship cannot be updated');
         }
