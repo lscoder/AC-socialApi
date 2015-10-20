@@ -36,14 +36,12 @@ var UserModel = Backbone.Model.extend({
 
 var FriendshipModel = Backbone.Model.extend({
   urlRoot: '/friendships',
-  sync: function(method, model, options) {
-    options || (options = {});
-    switch(method){
-      case 'create':
-      options.url = this.urlRoot + '/' + model.attributes.friendID;
-      break;
-    }
-    return Backbone.sync(method, model, options);
+  idAttribute: '_id',
+  inviteFriend: function(friendId, options) {
+    options = options || {};
+    options.url = this.urlRoot + '/invite/' + friendId;
+
+    this.save({}, options);
   }
 });
 
@@ -186,9 +184,10 @@ var AvailableUsersView = CollectionView.extend({
   template: _.template($('#userTemplate').html()),
   inviteFriend: function (event) {
     var user = this.getClickedItem(event),
-        friend = new FriendshipModel( { friendID: user.get('_id') });
+        friendId = user.get('_id'),
+        friendship = new FriendshipModel( { friendID: user.get('_id') });
 
-    friend.save({}, {
+    friendship.inviteFriend(friendId, {
       context: this,
       success: this.inviteSuccess,
       error: this.inviteError
@@ -210,15 +209,12 @@ var FriendshipRequestsView = CollectionView.extend({
   },
   template: _.template($('#friendRequestTemplate').html()),
   acceptFriend: function(event){
-    var user = this.getClickedItem(event),
-        friend = new FriendshipModel( { id: user.get('userRequester')._id } );
+    var friendship = this.getClickedItem(event)
 
-    console.log(user);
-
-    // friend.save({}, {
-    //   context: this,
-    //   success: this.friendAcceptedSuccess
-    // });
+    friendship.save({}, {
+      context: this,
+      success: this.friendAcceptedSuccess
+    });
   },
   friendAcceptedSuccess: function() {
     this.collection.fetch();
